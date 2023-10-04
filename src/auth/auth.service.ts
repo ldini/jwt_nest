@@ -1,17 +1,19 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
 import { RegisterDto } from './dto/register.dto';
 import { User } from 'src/users/entities/user.entity';
 import * as bcrypt from 'bcrypt'
+import { LoginDto } from './dto/login.dto';
 
 
 @Injectable()
 export class AuthService {
-  constructor(private userServise:UsersService
+  constructor(private userServise:UsersService,
+              private jwtService:JwtService
               ){}
 
-  async register(registerDto:RegisterDto){
+async register(registerDto:RegisterDto){
     const user = await this.userServise.findOneByEmail(registerDto.email)
 
   if(user){
@@ -21,13 +23,26 @@ export class AuthService {
   return await this.userServise.create(new User(registerDto.email,pass_encryptada,registerDto.username))
 }
 
+async login({email,password}:LoginDto){
+  //buscar el usuario ingresado
+  const user = await this.userServise.findOneByEmail(email);
+  //compruebo si el usuario existe
+  if(!user)
+    throw new UnauthorizedException('usuario incorrecto');
+
+  //compara el password del usuario existente con el ingresado por el cliente
+  const isPasswordValid = await bcrypt.compare(password,user.password);
+  if(!isPasswordValid)
+    throw new UnauthorizedException('password incorrecto');
   
+  const payload = {email: user.email}
 
-  
+  //creo el token
+  const token = await this.jwtService.signAsync(payload);
 
-  
+  return token;
 
-
+}
 
 
 

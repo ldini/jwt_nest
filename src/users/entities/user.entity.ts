@@ -14,6 +14,7 @@ export class User {
     @Column({ nullable:false })
     password:string;
 
+
     constructor(email:string,password:string,username:string){
         this.email = email;
         this.password = password;
