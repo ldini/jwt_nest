@@ -20,7 +20,7 @@ async register(registerDto:RegisterDto){
     throw new BadRequestException('El usuario ya existe')
   }
   const pass_encryptada = await bcrypt.hash(registerDto.password,10)
-  return await this.userServise.create(new User(registerDto.email,pass_encryptada,registerDto.username))
+  return await this.userServise.create(new User(registerDto.email,pass_encryptada,registerDto.username,registerDto.role))
 }
 
 async login({email,password}:LoginDto){
@@ -35,7 +35,7 @@ async login({email,password}:LoginDto){
   if(!isPasswordValid)
     throw new UnauthorizedException('password incorrecto');
   
-  const payload = {email: user.email}
+  const payload = {email: user.email,role: user.role, username: user.username}
 
   //creo el token
   const token = await this.jwtService.signAsync(payload);
