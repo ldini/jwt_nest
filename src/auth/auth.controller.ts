@@ -23,10 +23,6 @@ export class AuthController {
   @Get('home')
   @UseGuards(AuthGuard)
   getHome(@Req() request){
-    if(request.user.role !== Role.ADMIN)
-      return "no tiene suficiente permisos para acceder a mas informacion";
-    if(request.user.role === Role.ADMIN)
-      return request.user;
-    return "no deberias poder ver esto";
+    return this.authService.usuario(request.user.role)
   }
 }
