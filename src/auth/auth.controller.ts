@@ -23,6 +23,6 @@ export class AuthController {
   @Get('home')
   @UseGuards(AuthGuard)
   getHome(@Req() request){
-    return this.authService.usuario(request.user.role)
+    return request.user.role;
   }
 }
